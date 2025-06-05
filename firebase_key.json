@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "flora-app-0o1w4u",
+  "private_key_id": "008a7e545eb913fa835c796ec83e1c868d4da29c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCwst7r3sJqIO3x\nAcvjpoI2u8eeX/pl+7JZTP1Vj3wHO70/CB28nOEq8gVmsFNq/nNRVFF7wmYUxQw7\n/TdHBwDwJ++P+Jua3BY9pcsRqAMAm9XZQrtbtZhraRfNC/vKnDC7zLQ2X6L3Tx05\na9Sut9uh3emDPTm+Y4lN1HHPTouiY3dlmQvaUYATFEpvSZAKb3yYmgKpeIZWJSJe\nVexoCC2ragR1cs7cOKBXFTzgnnNjTxijtGovm3yoecIHsIwfbfRIDqMfW8tVtZiP\nnc1+Hr9b/4xUF1CfVX8sKyD9VjJar8GgbNMc4igg81+FkG/VsunaRE81xI4r+fU5\nrtKGrtF9AgMBAAECggEAA2Xn4ZNZcR8MVGEwzEJMfhmjCh8AZWuvZLDqrPWNxg8r\nttrvb3bONxGLxwtxtJILd69DwzncKrQWEHqbJd4y8hYNMQXv6szRZK1xN/gKLr3Q\ndqrQ3ZT4HGtbTictLW/5g/MOLX7YrHbfXKuqiGhNbKckMXuWRly1rEMp+SRNN883\noFrLOMVwE/nmQ77xtvtmqArfhIkgFsv/cCN5x79v81dRiooIsB57X58kZqc2onUJ\nRGchTQXAfhRctuuYH3dA9FywntaC99Mc8wUw/1yzhDSKxHwrtNJMH0o0/wcR7Brw\nP5b7UMEng8TrqSBAOlYF9+MbRD1P1tcIvWnuHrTsJQKBgQDzY4AODYDXrX/s6w4m\nerF4V9UzTOrs2dvFIdrOD/viwX/UucWxV6fJ5n8AAuAyykSubZQm4qCFRL6KsFrW\nEiDW1FhgnBYVmPe9VX7VivShL+8gRgjBKl1xSCwfgrMdUNsxW54b1LGTeEzekFSW\nbb5dVDhBBZ6C8Vt8pZlGUEJUowKBgQC52r4C92d4yE0FXczA2cpG/VxKxqebiFIe\nTwzXI3aWC7avdROT1qjosxsS/0TLmXIyq5Wowy+bAPn0Y6mXXlZw4JbY6wpNd8yp\nkhyHCaL/28B3OJbiIPGiL1rTdVeqs/BAZxaSgMPbOZcdWf/spqspFI4W2hxp2jrk\nRuXGClaDXwKBgQCi1WDpBfO7WCKMGT6gU9nED89dwQozaBX2r42560u0C41AfwFa\ngrCJDaLOGR5yHI0SvdEuqtSGFNX957r+GabK08pE6GiGDo9ApqByscK0zGMJjpFw\n2q0liwmqE0FOTbg4L3l6WTRs20FibeGJuuZvflcceWvxYxS4Mfp35l5aTQKBgQCC\nJ7Y5zZkg9OU7hN0HkX4fCP/BPi3Stj0MDMApSiSaH8noRk1Xk1Tm4cdsHmjHTMa0\nxYUhks+b9asWg1UZNG/EzQPXFYM5jVQ+zJw91XnZRMQcufywj/GoaxFoVRz35tux\nvoAISTTgKgyx+X1I9c+YDVUUm9qaJsJna18uub6scQKBgQDYd+ZiSq35AoBaunox\ngLKbCO8yiC5Ub5FtgH2/4Oy7UrR6y86iWwgH9MceQNPbHVLJ1Bg/p1rdBbg1pSaB\n6sT2gG7vXSI45nsYwLgFGovqMLUiZTH0gRJKeDE53BYHou8+xj0z/4/lbtpO+O2v\n6olpA+9mfoEfBtAMJvLSMEMM7w==\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@flora-app-0o1w4u.iam.gserviceaccount.com",
+  "client_id": "113692069226059741151",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40flora-app-0o1w4u.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
