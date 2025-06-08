@@ -13,10 +13,20 @@ from firebase_admin import credentials
 from datetime import datetime
 import os
 import re 
+import base64
 
-# Inicializar Firebase una sola vez
-cred = credentials.Certificate("firebase_key.json")
-firebase_admin.initialize_app(cred)
+FIREBASE_KEY_B64 = os.getenv("FIREBASE_KEY_B64")
+
+# Escribir archivo temporalmente si la variable está definida
+if FIREBASE_KEY_B64:
+    with open("firebase_key.json", "wb") as f:
+        f.write(base64.b64decode(FIREBASE_KEY_B64))
+
+# Inicializar Firebase
+if not firebase_admin._apps:
+    cred = credentials.Certificate("firebase_key.json")
+    firebase_admin.initialize_app(cred)
+
 db = firestore.client()
 
 app = FastAPI()
