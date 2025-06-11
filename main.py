@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jun  4 21:17:50 2025
-Modified to return a download URL
+Modified to return a download URL and export only la colección "registro" con columnas ordenadas y renombradas.
 """
 
-from fastapi import FastAPI, Query, HTTPException, Request
+from fastapi import FastAPI, Query, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from firebase_admin import firestore
+from firebase_admin import firestore, credentials, initialize_app
 import pandas as pd
 import firebase_admin
-from firebase_admin import credentials
 from datetime import datetime
 import os
 import re
@@ -18,8 +17,7 @@ import base64
 
 app = FastAPI()
 
-# 📁 Directorio donde se guardarán los excels
-DOWNLOAD_FOLDER = "downloads"
+# 📁 Directorio donde se guardarán los excels\DOWNLOAD_FOLDER = "downloads"
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
 # Montamos la carpeta como estática
@@ -37,7 +35,7 @@ with open("firebase_key.json", "wb") as f:
 # ✅ Inicializar Firebase una sola vez
 if not firebase_admin._apps:
     cred = credentials.Certificate("firebase_key.json")
-    firebase_admin.initialize_app(cred)
+    initialize_app(cred)
 
 db = firestore.client()
 
@@ -48,9 +46,67 @@ def clean_data(data):
             data[key] = value.replace(tzinfo=None)
     return data
 
-# 🔍 Consulta una colección filtrando por campanaID
-def get_collection_as_df(collection_name, campana_id):
-    docs = db.collection(collection_name).where("campanaID", "==", campana_id).stream()
+# 📑 Configuración de columnas para la hoja "registro"
+COLUMN_ORDER = [
+    'nameCamp', 'createdByEmailCamp', 'startDateCamp', 'endDateCamp',
+    'createdByCamp', 'createdAtCamp', 'accesListCamp',
+    'nameEst', 'tamanoEst', 'exposicionEst', 'pendienteEst',
+    'otraCoberturaEst', 'cobertura1Est', 'cobertura2Est', 'comentarioEst',
+    'type', 'registroAnoDate', 'registrosMesDate', 'registrosDiaDate',
+    'registrosHoraDate', 'registroDate', 'date', 'nInd', 'protocoloMuestreo',
+    'Reino', 'division', 'clase', 'familia', 'genero', 'nameSp', 'habito',
+    'cobertura', 'comentarios', 'parametro', 'tipoCuantificacion',
+    'estadosFenologicos', 'estadosFitosanitarios', 'agrupacionesForestales',
+    'campanaID', 'estacionID', 'registroID'
+]
+
+COLUMN_RENAME = {
+    'nameCamp': 'Nombre de la Campaña',
+    'createdByEmailCamp': 'Responsable (Email)',
+    'startDateCamp': 'Fecha de inicio de la campaña',
+    'endDateCamp': 'Fecha de termino de la campaña',
+    'createdByCamp': 'Responsable',
+    'createdAtCamp': 'Fecha de creación de la campaña',
+    'accesListCamp': 'Lista de compartidos (Emails)',
+    'nameEst': 'Nombre de la estación',
+    'tamanoEst': 'Tamaño de la estación',
+    'exposicionEst': 'Exposición de la estación',
+    'pendienteEst': 'Pendiente de la estación',
+    'otraCoberturaEst': 'Otra cobertura estación',
+    'cobertura1Est': 'Cobertura 1 estación',
+    'cobertura2Est': 'cobertura 2 estación',
+    'comentarioEst': 'Comentarios de la estación',
+    'type': 'Tipo (Flora o Forestal)',
+    'registroAnoDate': 'Año del registro',
+    'registrosMesDate': 'Mes del registro',
+    'registrosDiaDate': 'Día del registro',
+    'registrosHoraDate': 'Hora del registro',
+    'registroDate': 'Fecha del registro',
+    'date': 'Fecha',
+    'nInd': 'Número de individuos',
+    'protocoloMuestreo': 'Protocolo de muestreo',
+    'Reino': 'Reino',
+    'division': 'Division',
+    'clase': 'Clase',
+    'familia': 'Familia',
+    'genero': 'Genero',
+    'nameSp': 'Nombre especie',
+    'habito': 'Habito',
+    'cobertura': 'Cobertura',
+    'comentarios': 'Comentarios registro',
+    'parametro': 'Parámetro',
+    'tipoCuantificacion': 'Tipo de cuantificación',
+    'estadosFenologicos': 'Estados fenológicos',
+    'estadosFitosanitarios': 'Estados fitosanitarios',
+    'agrupacionesForestales': 'Agrupaciones forestales',
+    'campanaID': 'CampanaID',
+    'estacionID': 'EstacionID',
+    'registroID': 'RegistroID'
+}
+
+# 🔍 Consulta la colección "registro" filtrando por campanaID
+def get_registro_df(campana_id: str) -> pd.DataFrame:
+    docs = db.collection("registro").where("campanaID", "==", campana_id).stream()
     data = [clean_data(doc.to_dict() | {"id": doc.id}) for doc in docs]
     return pd.DataFrame(data)
 
@@ -60,24 +116,30 @@ def sanitize_filename(name: str) -> str:
 
 # 📤 Endpoint principal
 @app.get("/export")
-def export_data(
+def export_registro(
     request: Request,
     campana_id: str = Query(..., description="ID de la campaña a filtrar")
 ):
-    collection_names = ["registro", "campana", "estacion"]
     safe_campana_id = sanitize_filename(campana_id)
-    output_filename = f"export_campana_{safe_campana_id}.xlsx"
+    output_filename = f"export_registro_{safe_campana_id}.xlsx"
     output_path = os.path.join(DOWNLOAD_FOLDER, output_filename)
 
-    # Generar el Excel
+    # Obtener DataFrame
+    df = get_registro_df(campana_id)
+    if df.empty:
+        raise HTTPException(status_code=404, detail="No se encontraron registros para la campaña dada.")
+
+    # Reordenar y renombrar columnas
+    df = df.reindex(columns=COLUMN_ORDER)
+    df = df.rename(columns=COLUMN_RENAME)
+
+    # Generar el Excel con solo la hoja "registro"
     with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
-        for name in collection_names:
-            df = get_collection_as_df(name, campana_id)
-            if not df.empty:
-                df.to_excel(writer, sheet_name=name, index=False)
+        df.to_excel(writer, sheet_name="registro", index=False)
 
     # Construir URL de descarga
-    base_url = str(request.base_url).rstrip("/")  # elimina la barra final
+    base_url = str(request.base_url).rstrip("/")
     download_url = f"{base_url}/downloads/{output_filename}"
 
     return JSONResponse({"download_url": download_url})
+
