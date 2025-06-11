@@ -17,11 +17,12 @@ import base64
 
 app = FastAPI()
 
-# 📁 Directorio donde se guardarán los excels\DOWNLOAD_FOLDER = "downloads"
-os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+# 📁 Directorio donde se guardarán los excels
+download_folder = "downloads"
+os.makedirs(download_folder, exist_ok=True)
 
 # Montamos la carpeta como estática
-app.mount("/downloads", StaticFiles(directory=DOWNLOAD_FOLDER), name="downloads")
+app.mount("/downloads", StaticFiles(directory=download_folder), name="downloads")
 
 # 🔐 Cargar clave de Firebase desde variable de entorno
 FIREBASE_KEY_B64 = os.getenv("FIREBASE_KEY_B64")
@@ -122,7 +123,7 @@ def export_registro(
 ):
     safe_campana_id = sanitize_filename(campana_id)
     output_filename = f"export_registro_{safe_campana_id}.xlsx"
-    output_path = os.path.join(DOWNLOAD_FOLDER, output_filename)
+    output_path = os.path.join(download_folder, output_filename)
 
     # Obtener DataFrame
     df = get_registro_df(campana_id)
@@ -142,4 +143,5 @@ def export_registro(
     download_url = f"{base_url}/downloads/{output_filename}"
 
     return JSONResponse({"download_url": download_url})
+
 
