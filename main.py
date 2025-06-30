@@ -141,6 +141,13 @@ def export_registro(
     df = df.reindex(columns=COLUMN_ORDER)
     df = df.rename(columns=COLUMN_RENAME)
 
+    # Modificar campos especiales segun requerimiento
+    cols = ['Fecha de inicio de la campaña', 'Fecha de término de la campaña']
+
+    for c in cols:
+        # Convierte a datetime y luego deja solo la parte de la fecha
+        df[c] = pd.to_datetime(df[c]).dt.date
+    
     # Generar el Excel con solo la hoja "registro"
     with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
         df.to_excel(writer, sheet_name="registro", index=False)
