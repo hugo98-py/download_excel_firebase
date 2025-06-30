@@ -55,17 +55,19 @@ COLUMN_ORDER = [
     'otraCoberturaEst', 'cobertura1Est', 'cobertura2Est', 'comentarioEst',
     'type', 'registroAnoDate', 'registrosMesDate', 'registrosDiaDate',
     'registrosHoraDate', 'registroDate', 'date', 'nInd', 'protocoloMuestreo',
-    'Reino', 'division', 'clase', 'familia', 'genero', 'nameSp', 'habito',
+    'tipoDeComponente','estadoDelOrganismo', 'tipoDeRegistro', 'unidadDeLaMuestra', 'unidadDeValor',
+    'Reino', 'division', 'clase', 'familia', 
+    'genero', 'nameSp', 'habito',
     'cobertura', 'comentarios', 'parametro', 'tipoCuantificacion',
     'estadosFenologicos', 'estadosFitosanitarios', 'agrupacionesForestales',
     'campanaID', 'estacionID', 'registroID'
 ]
 
-COLUMN_RENAME = {
+COLUMN_RENAME = { 
     'nameCamp': 'Nombre de la Campaña',
     'createdByEmailCamp': 'Responsable (Email)',
     'startDateCamp': 'Fecha de inicio de la campaña',
-    'endDateCamp': 'Fecha de termino de la campaña',
+    'endDateCamp': 'Fecha de término de la campaña',   # ← término
     'createdByCamp': 'Responsable',
     'createdAtCamp': 'Fecha de creación de la campaña',
     'accesListCamp': 'Lista de compartidos (Emails)',
@@ -75,7 +77,7 @@ COLUMN_RENAME = {
     'pendienteEst': 'Pendiente de la estación',
     'otraCoberturaEst': 'Otra cobertura estación',
     'cobertura1Est': 'Cobertura 1 estación',
-    'cobertura2Est': 'cobertura 2 estación',
+    'cobertura2Est': 'Cobertura 2 estación',
     'comentarioEst': 'Comentarios de la estación',
     'type': 'Tipo (Flora o Forestal)',
     'registroAnoDate': 'Año del registro',
@@ -86,13 +88,18 @@ COLUMN_RENAME = {
     'date': 'Fecha',
     'nInd': 'Número de individuos',
     'protocoloMuestreo': 'Protocolo de muestreo',
+    'tipoDeComponente': 'Tipo de componente',
+    'estadoDelOrganismo': 'Estado del organismo',
+    'tipoDeRegistro': 'Tipo de registro',
+    'unidadDeLaMuestra': 'Unidad de la muestra', 
+    'unidadDeValor': 'Unidad de valor',
     'Reino': 'Reino',
-    'division': 'Division',
+    'division': 'División',                       # ← División
     'clase': 'Clase',
     'familia': 'Familia',
-    'genero': 'Genero',
+    'genero': 'Género',                          # ← Género
     'nameSp': 'Nombre especie',
-    'habito': 'Habito',
+    'habito': 'Hábito',                          # ← Hábito
     'cobertura': 'Cobertura',
     'comentarios': 'Comentarios registro',
     'parametro': 'Parámetro',
@@ -100,8 +107,8 @@ COLUMN_RENAME = {
     'estadosFenologicos': 'Estados fenológicos',
     'estadosFitosanitarios': 'Estados fitosanitarios',
     'agrupacionesForestales': 'Agrupaciones forestales',
-    'campanaID': 'CampanaID',
-    'estacionID': 'EstacionID',
+    'campanaID': 'CampañaID',                    # ← ñ
+    'estacionID': 'EstaciónID',                  # ← ó
     'registroID': 'RegistroID'
 }
 
