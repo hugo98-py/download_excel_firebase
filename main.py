@@ -16,7 +16,16 @@ import re
 import base64
 
 app = FastAPI()
+# ⚙️ Configuración CORS
+from fastapi.middleware.cors import CORSMiddleware
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],            # para pruebas (sin credenciales)
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["Content-Disposition"],
+)
 # 📁 Directorio donde se guardarán los excels
 download_folder = "downloads"
 os.makedirs(download_folder, exist_ok=True)
@@ -157,5 +166,6 @@ def export_registro(
     download_url = f"{base_url}/downloads/{output_filename}"
 
     return JSONResponse({"download_url": download_url})
+
 
 
