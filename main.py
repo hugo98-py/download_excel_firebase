@@ -2,6 +2,7 @@
 """
 Created on Wed Jun  4 21:17:50 2025
 Modified to return a download URL and export only la colección "registro" con columnas ordenadas y renombradas.
+Ahora también agrega una segunda hoja "ListadoForestal" con los datos de la colección "forestal" filtrada por campanaID.
 """
 
 from fastapi import FastAPI, Query, Request, HTTPException
@@ -16,6 +17,7 @@ import re
 import base64
 
 app = FastAPI()
+
 # ⚙️ Configuración CORS
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -26,6 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["Content-Disposition"],
 )
+
 # 📁 Directorio donde se guardarán los excels
 download_folder = "downloads"
 os.makedirs(download_folder, exist_ok=True)
@@ -65,18 +68,18 @@ COLUMN_ORDER = [
     'type', 'registroAnoDate', 'registrosMesDate', 'registrosDiaDate',
     'registrosHoraDate', 'registroDate', 'date', 'nInd', 'protocoloMuestreo',
     'tipoDeComponente','estadoDelOrganismo', 'tipoDeRegistro', 'unidadDeLaMuestra', 'unidadDeValor',
-    'Reino', 'division', 'clase', 'familia', 
+    'Reino', 'division', 'clase', 'familia',
     'genero', 'nameSp', 'habito',
     'cobertura', 'comentarios', 'parametro', 'tipoCuantificacion',
     'estadosFenologicos', 'estadosFitosanitarios', 'agrupacionesForestales',
     'campanaID', 'estacionID', 'registroID'
 ]
 
-COLUMN_RENAME = { 
+COLUMN_RENAME = {
     'nameCamp': 'Nombre de la Campaña',
     'createdByEmailCamp': 'Responsable (Email)',
     'startDateCamp': 'Fecha de inicio de la campaña',
-    'endDateCamp': 'Fecha de término de la campaña',   # ← término
+    'endDateCamp': 'Fecha de término de la campaña',
     'createdByCamp': 'Responsable',
     'createdAtCamp': 'Fecha de creación de la campaña',
     'accesListCamp': 'Lista de compartidos (Emails)',
@@ -100,15 +103,15 @@ COLUMN_RENAME = {
     'tipoDeComponente': 'Tipo de componente',
     'estadoDelOrganismo': 'Estado del organismo',
     'tipoDeRegistro': 'Tipo de registro',
-    'unidadDeLaMuestra': 'Unidad de la muestra', 
+    'unidadDeLaMuestra': 'Unidad de la muestra',
     'unidadDeValor': 'Unidad de valor',
     'Reino': 'Reino',
-    'division': 'División',                       # ← División
+    'division': 'División',
     'clase': 'Clase',
     'familia': 'Familia',
-    'genero': 'Género',                          # ← Género
+    'genero': 'Género',
     'nameSp': 'Nombre especie',
-    'habito': 'Hábito',                          # ← Hábito
+    'habito': 'Hábito',
     'cobertura': 'Cobertura',
     'comentarios': 'Comentarios registro',
     'parametro': 'Parámetro',
@@ -116,8 +119,8 @@ COLUMN_RENAME = {
     'estadosFenologicos': 'Estados fenológicos',
     'estadosFitosanitarios': 'Estados fitosanitarios',
     'agrupacionesForestales': 'Agrupaciones forestales',
-    'campanaID': 'CampañaID',                    # ← ñ
-    'estacionID': 'EstaciónID',                  # ← ó
+    'campanaID': 'CampañaID',
+    'estacionID': 'EstaciónID',
     'registroID': 'RegistroID'
 }
 
@@ -125,6 +128,13 @@ COLUMN_RENAME = {
 def get_registro_df(campana_id: str) -> pd.DataFrame:
     docs = db.collection("registro").where("campanaID", "==", campana_id).stream()
     data = [clean_data(doc.to_dict() | {"id": doc.id}) for doc in docs]
+    return pd.DataFrame(data)
+
+# 🔍 NUEVO: Consulta la colección "forestal" filtrando por campanaID
+# (Se exporta tal cual viene; no se reordenan ni renombran columnas)
+def get_forestal_df(campana_id: str) -> pd.DataFrame:
+    docs = db.collection("forestal").where("campanaID", "==", campana_id).stream()
+    data = [clean_data(doc.to_dict()) for doc in docs]   # sin agregar campos extra
     return pd.DataFrame(data)
 
 # 🧼 Sanitiza el nombre del archivo
@@ -141,31 +151,41 @@ def export_registro(
     output_filename = f"export_registro_{safe_campana_id}.xlsx"
     output_path = os.path.join(download_folder, output_filename)
 
-    # Obtener DataFrame
+    # Obtener DataFrames
     df = get_registro_df(campana_id)
     if df.empty:
+        # Se mantiene la lógica original: si no hay "registro", 404
         raise HTTPException(status_code=404, detail="No se encontraron registros para la campaña dada.")
 
-    # Reordenar y renombrar columnas
+    df_forestal = get_forestal_df(campana_id)  # puede venir vacío
+
+    # Reordenar y renombrar columnas de "registro" (igual que antes)
     df = df.reindex(columns=COLUMN_ORDER)
     df = df.rename(columns=COLUMN_RENAME)
 
-    # Modificar campos especiales segun requerimiento
+    # Modificar campos especiales segun requerimiento (solo en hoja "registro")
     cols = ['Fecha de inicio de la campaña', 'Fecha de término de la campaña']
-
     for c in cols:
-        # Convierte a datetime y luego deja solo la parte de la fecha
-        df[c] = pd.to_datetime(df[c]).dt.date
-    
-    # Generar el Excel con solo la hoja "registro"
+        if c in df.columns:
+            df[c] = pd.to_datetime(df[c]).dt.date
+
+    # Generar el Excel con la hoja "registro" y la nueva hoja "ListadoForestal"
     with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
         df.to_excel(writer, sheet_name="registro", index=False)
+
+        # Hoja "ListadoForestal": si df_forestal está vacío, igual se crea hoja vacía
+        if df_forestal.empty:
+            # Crear una hoja vacía explícitamente
+            pd.DataFrame().to_excel(writer, sheet_name="ListadoForestal", index=False)
+        else:
+            df_forestal.to_excel(writer, sheet_name="ListadoForestal", index=False)
 
     # Construir URL de descarga
     base_url = str(request.base_url).rstrip("/")
     download_url = f"{base_url}/downloads/{output_filename}"
 
     return JSONResponse({"download_url": download_url})
+
 
 
 
